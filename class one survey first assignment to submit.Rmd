@@ -1,0 +1,179 @@
+---
+title: "classsurvey"
+author: "Bezaye"
+date: "2025-08-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, chunk1, message=FALSE}
+#Import class one survey data from our Github site
+#Save it as C1survey
+library(readr)
+C1survey_csv <-
+ read_csv(
+   "https://github.com/kijohnson/Advanced-Data-Analysis/raw/refs/heads/main/Class%201%20Survey%20Fall%202025%202.csv"
+   )
+```
+```{r, chunk2}
+# a. Number of observations (people who filled out the survey)
+# b. Number of variables in the dataframe
+n_obs <- nrow(C1survey_csv)
+n_vars <- ncol(C1survey_csv)
+```
+
+
+```{r, chunk3}
+#using the dimension function to find the number of obseravations
+dim(C1survey_csv) 
+```
+
+
+```{r, chunk4}
+View(C1survey_csv)
+```
+```{r}
+install.packages("dplyr")
+library(dplyr) 
+```
+
+```{r, chunk5}
+# Load the dplyr function
+library(dplyr) 
+colnames(C1survey_csv) 
+```
+```{r, Chunk6}
+#3. a. Rename the column variables to something shorter and descriptive
+C1survey_csv <- C1survey_csv %>%
+  rename(
+    id = id,
+    like_cats = like_cats,
+    like_dogs = like_dogs,
+    have_desert = have_desert,
+    slogan = slogan,
+    fav_day = fav_day,
+    larkORowl = larkORowl,
+    fav_food = fav_food,
+    fav_drink = fav_drink,
+    fav_season = fav_season,
+    fav_month = fav_month,
+    hobby = hobby,
+    program = program,
+    specialization = specialization,
+    stat_software = stat_software,
+    R_exp = R_exp,
+    coding_comfort = coding_comfort,
+    coding_length = coding_length,
+    top_three = top_three,
+    public_health_interest = public_health_interest,
+    fav_num = fav_num,
+    bday = bday,
+    bmonth = bmonth,
+    country = country,
+    state = state,
+    city = city,
+    highest_educ_level = highest_educ_level
+  )
+
+
+
+```
+
+```{r, chunk7}
+# 3. b. Display new column names
+colnames(C1survey_csv)
+```
+```{r, chunk8}
+# 4. display the number of factor, integer, numerical, and character variables there are in the C1survey dataset. 
+sapply(C1survey_csv, class) |> 
+  table()
+```
+```{r, chunk9}
+# 5. a. Check the bday and bmonth variables for unusual or missing values
+table(C1survey_csv$bday, useNA = "always")
+table(C1survey_csv$bmonth, useNA = "always")
+```
+```{r, chunk10}
+#check the class
+class(C1survey_csv$bday)
+class(C1survey_csv$bmonth)
+```
+```{r, chunk11}
+#check the class
+class(C1survey_csv$bday)
+class(C1survey_csv$bmonth)
+```
+```{r, chunk12}
+#5. b. If there are invalid values (e.g. day < 1 or > 31, month < 1 or > 12), replace them with NA
+C1survey_csv$bday <- as.numeric(C1survey_csv$bday)
+C1survey_csv$bmonth <- as.numeric(C1survey_csv$bmonth)
+```
+
+```{r, chunk13}
+#Clean NA for bday
+C1survey_csv$bday[C1survey_csv$bday < 1 | C1survey_csv$bday > 31] <- NA
+
+```
+```{r, chunk14}
+#Clean NA for bmonth
+C1survey_csv$bmonth[C1survey_csv$bmonth < 1 | C1survey_csv$bmonth > 12] <- NA
+```
+
+```{r, chunk15}
+#see the table after I Cleaned NA
+table(C1survey_csv$bday, useNA = "always")
+table(C1survey_csv$bmonth, useNA = "always")
+```
+```{r, chunk16}
+#5. c. Find median birthday day and month after cleaning
+median_day <- median(C1survey_csv$bday, na.rm = TRUE)
+median_month <- median(C1survey_csv$bmonth, na.rm = TRUE)
+median_day
+median_month
+```
+
+```{r, chunk17}
+# 6. a. Create new variable bseason based on meteorological seasons
+
+C1survey_csv <- C1survey_csv %>%
+  mutate(
+    bseason = if_else(bmonth %in% c(12, 1, 2), "Winter",
+               if_else(bmonth %in% 3:5, "Spring",
+               if_else(bmonth %in% 6:8, "Summer",
+               if_else(bmonth %in% 9:11, "Fall", NA_character_)))))
+
+```
+```{r, chunk18}
+# 6.b. Check the coding by creating a table of bmonth vs bseason
+
+table(C1survey_csv$bmonth, C1survey_csv$bseason, useNA = "always")
+
+```
+```{r, chunk19}
+#Check coding: table of months (rows) vs seasons (columns)
+season_table <- table(C1survey_csv$bmonth, C1survey_csv$bseason, useNA = "always")
+season_table
+```
+```{r, chunk20}
+# 6.c. Sum the number of classmates in each season using addmargins
+addmargins(season_table, 2)  # sum across columns
+
+
+```
+```{r, chunk21}
+
+# 7. Choose one or more variables for own analysis
+# I choose like cats and like dogs variables
+# Hypothesis: Most people who like cats also like dogs.
+
+# Subset the dataset to only people who like cats
+like_cats_subset <- C1survey_csv %>%
+  filter(like_cats == "Yes")
+
+# Calculate the proportion of these people who also like dogs
+mean(like_cats_subset$like_dogs == "Yes", na.rm = TRUE)
+
+```
+
